@@ -123,8 +123,7 @@ should be trying to use `SetLike` and `MapLike` (although getting that
 working correctly will be a thankless task). This means that equality
 tests with Scala's set and map classes will always return `false`.
 
-Rebox doesn't currently have any performance benchmarks to prove it is
-useful.
+Rebox could use more benchmarks (both performance and memory).
 
 ### Copyright and License
 
