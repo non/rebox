@@ -7,17 +7,17 @@ import scala.reflect.ClassTag
 import java.util.NoSuchElementException
 
 object Set {
-  def empty[A: ClassTag]: Set[A] =
+  def empty[@sp A: ClassTag]: Set[A] =
     new Set[A](im.Set.empty, im.Set.empty, debox.Set.empty)
 
-  def apply[A](base: debox.Set[A]): Set[A] =
+  def apply[@sp A](base: debox.Set[A]): Set[A] =
     new Set[A](im.Set.empty, im.Set.empty, base)
 
-  def fromIterable[A: ClassTag](as: Iterable[A]): Set[A] =
+  def fromIterable[@sp A: ClassTag](as: Iterable[A]): Set[A] =
     apply(debox.Set.fromIterable(as))
 }
 
-class Set[A] private[rebox] (added: im.Set[A], removed: im.Set[A], private[rebox] val base: debox.Set[A]) extends Iterable[A] {
+class Set[@sp A] private[rebox] (added: im.Set[A], removed: im.Set[A], private[rebox] val base: debox.Set[A]) extends Iterable[A] {
 
   override def hashCode: Int =
     foldLeft(0xabe2daeb)(_ ^ _.##)
