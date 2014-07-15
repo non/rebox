@@ -7,14 +7,35 @@ import scala.reflect.ClassTag
 import java.util.NoSuchElementException
 
 object Map {
-  def empty[K, V](implicit ctk: ClassTag[K], ctv: ClassTag[V]): Map[K, V] =
+  def empty[K: ClassTag, V: ClassTag]: Map[K, V] =
     new Map[K, V](0, im.Map.empty, debox.Map.empty)
 
   def apply[K, V](base: debox.Map[K, V]): Map[K, V] =
     new Map[K, V](base.size, im.Map.empty, base)
+
+  def fromIterable[K: ClassTag, V: ClassTag](kvs: Iterable[(K, V)]): Map[K, V] =
+    apply(debox.Map.fromIterable(kvs))
 }
 
-class Map[K, V] private[rebox] (override val size: Int, mods: im.Map[K, Option[V]], base: debox.Map[K, V]) extends Iterable[(K, V)] {
+class Map[K, V] private[rebox] (override val size: Int, mods: im.Map[K, Option[V]], private[rebox] val base: debox.Map[K, V]) extends Iterable[(K, V)] {
+
+  override def hashCode: Int =
+    foldLeft(0xba55d00d) { case (n, (k, v)) => n ^ ((k.## * 9913) + (v.## * 551) + 23953) }
+
+  override def equals(that: Any): Boolean =
+    that match {
+      case r: rebox.Map[_, _] =>
+        if (r.size != size || r.base.cta != base.cta || r.base.ctb != base.ctb) return false
+        val rr = r.asInstanceOf[Map[K, V]]
+        rr.forall { case (k, v) =>
+          val o = get(k)
+          o.isDefined && o.get == v
+        }
+      case _ =>
+        false
+    }
+
+  def modSize: Int = mods.size
 
   def apply(k: K): V =
     mods.get(k) match {
@@ -23,21 +44,35 @@ class Map[K, V] private[rebox] (override val size: Int, mods: im.Map[K, Option[V
       case None => base(k)
     }
 
-  def updated(k: K, v: V): Map[K, V] =
-    new Map(if (base.contains(k)) size else size + 1, mods.updated(k, Some(v)), base)
-
-  def += (kv: (K, V)): Map[K, V] =
-    updated(kv._1, kv._2)
-  
-  def -= (k: K): Map[K, V] =
+  def get(k: K): Option[V] =
     mods.get(k) match {
-      case Some(Some(v)) =>
+      case Some(o) => o
+      case None => base.get(k)
+    }
+
+  def updated(k: K, v: V): Map[K, V] = {
+    val n = mods.get(k) match {
+      case Some(o) => if (o.isDefined) size else size + 1
+      case None => if (base.contains(k)) size else size + 1
+    }
+    new Map(n, mods.updated(k, Some(v)), base)
+  }
+
+  def remove(k: K): Map[K, V] =
+    mods.get(k) match {
+      case Some(Some(_)) =>
         new Map(size - 1, mods.updated(k, None), base)
       case Some(None) =>
         this
       case None =>
         if (base.contains(k)) new Map(size - 1, mods.updated(k, None), base) else this
     }
+
+  def + (kv: (K, V)): Map[K, V] =
+    updated(kv._1, kv._2)
+  
+  def - (k: K): Map[K, V] =
+    remove(k)
   
   def compact: Map[K, V] =
     Map(toDebox)

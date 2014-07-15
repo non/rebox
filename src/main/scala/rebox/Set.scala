@@ -7,13 +7,13 @@ import scala.reflect.ClassTag
 import java.util.NoSuchElementException
 
 object Set {
-  def empty[A](implicit ct: ClassTag[A]): Set[A] =
+  def empty[A: ClassTag]: Set[A] =
     new Set[A](im.Set.empty, im.Set.empty, debox.Set.empty)
 
   def apply[A](base: debox.Set[A]): Set[A] =
     new Set[A](im.Set.empty, im.Set.empty, base)
 
-  def fromIterable[A](as: Iterable[A])(implicit ct: ClassTag[A]): Set[A] =
+  def fromIterable[A: ClassTag](as: Iterable[A]): Set[A] =
     apply(debox.Set.fromIterable(as))
 }
 

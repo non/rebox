@@ -8,16 +8,13 @@ import org.scalacheck._
 import Gen._
 import Arbitrary.arbitrary
 
-import spire.algebra.Order
-import spire.std.any._
-
 import scala.collection.{immutable => im}
 import scala.reflect.ClassTag
 
-abstract class SetCheck[A: Arbitrary: ClassTag: Order]
+abstract class SetCheck[A: Arbitrary: ClassTag]
     extends PropSpec with Matchers with GeneratorDrivenPropertyChecks {
 
-  def adhoc[A: ClassTag](as: Iterable[A]): rebox.Set[A] =
+  def adhoc(as: Iterable[A]): rebox.Set[A] =
     as.foldLeft(rebox.Set.empty[A])(_ + _)
 
   property("from empty") {
@@ -71,16 +68,16 @@ abstract class SetCheck[A: Arbitrary: ClassTag: Order]
 
   property("toScala") {
     forAll { xs: im.Set[A] =>
-      val r = adhoc(xs)
-      r.toScala shouldBe xs
+      adhoc(xs).toScala shouldBe xs
+      rebox.Set.fromIterable(xs).toScala shouldBe xs
     }
   }
 
   property("toDebox") {
     forAll { xs: im.Set[A] =>
       val d = debox.Set.fromIterable(xs)
-      val r = adhoc(xs)
-      r.toDebox shouldBe d
+      adhoc(xs).toDebox shouldBe d
+      rebox.Set.fromIterable(xs).toDebox shouldBe d
     }
   }
 
