@@ -32,7 +32,7 @@ val values1 = load(...)
 
 // does not copy underlying debox.Set instance.
 // adds 999 to an additional internal immutable.Set[Int].
-// values is still totally viable.
+// values1 is still totally viable and unchanged.
 val values2 = values1 += 999
 
 // still shares underlying int[] with values1 and values2
@@ -52,8 +52,6 @@ val values5 = values4.compact
 
 ### Getting Rebox
 
-**NOT PUBLISHED YET -- THIS TEXT IS A PLACEHOLDER**
-
 Rebox is published to [bintray](https://bintray.com/) using the
 [bintray-sbt](https://github.com/softprops/bintray-sbt) plugin.
 
@@ -70,10 +68,10 @@ libraryDependencies += "org.spire-math" %% "rebox" % "0.0.1"
 
 Rebox's design is based around the idea of shared, read-only Debox
 instances along with an immutable "changelog". This means that
-additions and deletions will not require copying a large array, but
-will use the immutable map and set instances that Scala is known for.
-This means that Rebox's immutable instances are threadsafe (and use
-structural sharing) while also conserving underlying storage.
+additions and deletions will not have to copy a large array, but will
+use the immutable map and set instances that Scala is known for.  It
+also means that Rebox's immutable instances are threadsafe (and use
+structural sharing) while also conserving underlying storage space.
 
 One critical detail is that the underlying Debox instances must be
 considered read-only. This invariant is not enforced by the code;
@@ -90,9 +88,9 @@ val trusting: rebox.Set[Double] = rebox.Set(largeSet)
 val safe: rebox.Set[Double] = rebox.Set(largeSet.copy)
 ```
 
-After a Rebox instance accumulates a lot of changes, it will
-necessarily be less space efficient. Currently, users can manually
-compact Rebox instances in two ways:
+After a Rebox instance accumulates a lot of changes, it will start
+using up more space. Users can manually compact Rebox instances in two
+ways:
 
 ```scala
 val items: rebox.Map[K, V] = ...
@@ -108,14 +106,15 @@ val a = items.compact
 b = items.compactAt(0.5)
 ```
 
-### Future Work
+### Known Issues and Future Work
 
 Rebox is not specialized. While immutable structures will always do
-more boxing than a "raw" array-based approach. It's possible we can do
+more boxing than a "raw" array-based approach it's possible we can do
 much better here.
 
 Rebox does not do any automatic compacting. It might be the case that
-an optimal percentage at which to do compacting can be found.
+there is an optimal percentage at which it should automatically
+compact.
 
 Rebox currently only wraps `debox.Set` and `debox.Map`. We could
 easily add support for `debox.Buffer`.
@@ -124,9 +123,11 @@ Rebox instances only implement the `Iterable` interface, and don't
 support many collections methods directly. There are definitely
 additional methods we should be overriding, and it's also possible we
 should be trying to use `SetLike` and `MapLike` (although getting that
-working correctly will be a thankless task).
+working correctly will be a thankless task). This means that equality
+tests with Scala's set and map classes will always return `false`.
 
-Rebox doesn't currently have any performance benchmarks.
+Rebox doesn't currently have any performance benchmarks to prove it is
+useful.
 
 ### Copyright and License
 
