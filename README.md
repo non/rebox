@@ -52,6 +52,8 @@ val values5 = values4.compact
 
 ### Getting Rebox
 
+**NOT PUBLISHED YET -- THIS TEXT IS A PLACEHOLDER**
+
 Rebox is published to [bintray](https://bintray.com/) using the
 [bintray-sbt](https://github.com/softprops/bintray-sbt) plugin.
 
