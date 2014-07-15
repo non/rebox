@@ -116,9 +116,6 @@ Rebox does not do any automatic compacting. It might be the case that
 there is an optimal percentage at which it should automatically
 compact.
 
-Rebox currently only wraps `debox.Set` and `debox.Map`. We could
-easily add support for `debox.Buffer`.
-
 Rebox instances only implement the `Iterable` interface, and don't
 support many collections methods directly. There are definitely
 additional methods we should be overriding, and it's also possible we
