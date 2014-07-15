@@ -40,6 +40,9 @@ class Set[A] private[rebox] (added: im.Set[A], removed: im.Set[A], private[rebox
     else if (base(a)) new Set(added, removed - a, base)
     else new Set(added + a, removed - a, base)
 
+  def ++ (as: Iterable[A]): Set[A] =
+    as.foldLeft(this)(_ + _)
+
   def - (a: A): Set[A] =
     if (base(a)) new Set(added - a, removed + a, base)
     else if (added(a)) new Set(added - a, removed, base)
