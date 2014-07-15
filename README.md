@@ -55,8 +55,8 @@ val values5 = values4.compact
 Rebox is published to [bintray](https://bintray.com/) using the
 [bintray-sbt](https://github.com/softprops/bintray-sbt) plugin.
 
-Zillion supports Scala 2.10 and 2.11. If you use SBT, you can
-include Zillion via the following `build.sbt` snippets:
+Rebox supports Scala 2.10 and 2.11. If you use SBT, you can include
+Rebox via the following `build.sbt` snippets:
 
 ```
 resolvers += "bintray/non" at "http://dl.bintray.com/non/maven"
